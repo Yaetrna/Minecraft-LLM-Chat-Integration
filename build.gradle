@@ -1,0 +1,93 @@
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+}
+
+version = '1.0.0'
+group = 'com.example.llmchat'
+// The final jar will be named llmchat-1.0.0.jar
+base {
+    archivesName = 'llmchat'
+}
+
+// Minecraft 1.20.1 / Forge 47.x requires Java 17.
+// This toolchain block, combined with the Foojay resolver in settings.gradle,
+// makes Gradle auto-download a JDK 17 even if your system Java is a different version.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+minecraft {
+    // Use Mojang's official mappings (no extra plugin needed). Parchment would give
+    // slightly nicer parameter names in dev but requires an extra Gradle plugin and
+    // has zero effect on the compiled mod, so we keep it simple and robust.
+    mappings channel: 'official', version: '1.20.1'
+
+    // No accessTransformers needed for this mod.
+
+    runs {
+        // A 'server' run config so you can launch a dev server with: ./gradlew runServer
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                llmchat {
+                    source sourceSets.main
+                }
+            }
+        }
+        // A 'client' run config (handy for quick smoke testing).
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                llmchat {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Forge for Minecraft 1.20.1
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
+
+    // Gson is bundled inside Minecraft's runtime, so we only need it at compile time.
+    // We use it for building/parsing the OpenRouter JSON payloads.
+    compileOnly 'com.google.code.gson:gson:2.10.1'
+}
+
+// Forge needs this so it can read the mods.toml and inject metadata.
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            mod_version: version,
+            mod_id: 'llmchat'
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : 'llmchat',
+                'Specification-Vendor'    : 'example',
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : 'example'
+        ])
+    }
+    finalizedBy 'reobfJar'
+}
