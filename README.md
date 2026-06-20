@@ -1,3 +1,7 @@
+---
+HOLY VIBECODE
+---
+
 # LLM Chat — Minecraft Forge mod (1.20.1)
 
 Talk to an LLM from inside Minecraft. A player types a message that mentions a
