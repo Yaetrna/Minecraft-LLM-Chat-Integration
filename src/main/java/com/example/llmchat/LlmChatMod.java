@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * Responsibilities:
  *   - register the config spec so Forge writes config/llmchat-common.toml
  *   - register the ChatHandler on the Forge event bus so it hears chat
- *   - register a /llmreset command to clear the shared conversation memory
+ *   - register /llmreset (clear shared memory) and /llmreload (reload knowledge file)
  *   - clean up the background executor on shutdown
  */
 @Mod(LlmChatMod.MODID)
@@ -48,25 +48,38 @@ public final class LlmChatMod {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        LOGGER.info("LLM Chat ready. Trigger names: {} | default model: {}",
-                Config.TRIGGER_NAMES.get(), Config.DEFAULT_MODEL.get());
+        LOGGER.info("LLM Chat ready. Trigger names: {} | default model: {} | knowledge file: {}",
+                Config.TRIGGER_NAMES.get(), Config.DEFAULT_MODEL.get(), Config.KNOWLEDGE_FILE.get());
         if (Config.API_KEY.get() == null || Config.API_KEY.get().isBlank()) {
-            LOGGER.warn("LLM Chat: no API key set yet — the AI will not respond until you add one "
+            LOGGER.warn("LLM Chat: no API key set yet -- the AI will not respond until you add one "
                     + "to config/llmchat-common.toml and restart.");
         }
     }
 
-    /** Registers the /llmreset command (server operators only, permission level 2). */
+    /** Registers /llmreset and /llmreload (server operators only, permission level 2). */
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+
         dispatcher.register(
             Commands.literal("llmreset")
                 .requires(src -> src.hasPermission(2))
                 .executes(ctx -> {
                     chatHandler.history().clear();
                     ctx.getSource().sendSuccess(
-                        () -> Component.literal("§aLLM Chat: shared conversation memory cleared."),
+                        () -> Component.literal("\u00A7aLLM Chat: shared conversation memory cleared."),
+                        true);
+                    return 1;
+                })
+        );
+
+        dispatcher.register(
+            Commands.literal("llmreload")
+                .requires(src -> src.hasPermission(2))
+                .executes(ctx -> {
+                    chatHandler.reloadKnowledge();
+                    ctx.getSource().sendSuccess(
+                        () -> Component.literal("\u00A7aLLM Chat: knowledge file reloaded from disk."),
                         true);
                     return 1;
                 })

@@ -2,13 +2,13 @@
 modLoader="javafml"
 loaderVersion="[47,)"
 license="MIT"
-issueTrackerURL="https://example.com/issues"
+issueTrackerURL="https://github.com/Yaetrna/Minecraft-LLM-Chat-Integration-/issues"
 
 [[mods]]
 modId="llmchat"
 version="${mod_version}"
 displayName="LLM Chat"
-authors="example"
+authors="Yaetrna"
 description='''
 Forward in-game chat messages to an LLM (via OpenRouter) by mentioning a configured name
 like @Grok or @AI. The AI's reply is broadcast to the whole server. Server-side only.
