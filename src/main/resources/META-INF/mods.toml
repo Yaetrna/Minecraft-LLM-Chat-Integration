@@ -2,7 +2,7 @@
 modLoader="javafml"
 loaderVersion="[47,)"
 license="MIT"
-issueTrackerURL="https://github.com/Yaetrna/Minecraft-LLM-Chat-Integration-/issues"
+issueTrackerURL="https://github.com/Yaetrna/Minecraft-LLM-Chat-Integration/issues"
 
 [[mods]]
 modId="llmchat"
